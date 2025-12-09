@@ -1,0 +1,3343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>霓虹管道客 - 赛博双雄记</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 重置样式和基础设置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background: #0a0a1a;
+            color: #e0e0ff;
+            position: relative;
+        }
+        
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        /* 游戏封面 - 改进滚动兼容性 */
+        #gameCover {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0a1a 0%, #0f0f25 100%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .cover-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 50%, rgba(0, 170, 255, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 30%, rgba(255, 0, 102, 0.1) 0%, transparent 50%);
+        }
+        
+        .cover-content {
+            text-align: center;
+            z-index: 2;
+            padding: 20px;
+            max-width: 1200px;
+            width: 90%;
+        }
+        
+        .cover-title {
+            font-size: clamp(2.5rem, 8vw, 5rem); /* 响应式字体大小 */
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #00F0FF, #FF00FF, #00F0FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 30px rgba(0, 240, 255, 0.7);
+            letter-spacing: 3px;
+            position: relative;
+            -webkit-animation: titleGlow 3s infinite alternate;
+            animation: titleGlow 3s infinite alternate;
+        }
+        
+        @-webkit-keyframes titleGlow {
+            0% { text-shadow: 0 0 30px rgba(0, 240, 255, 0.7), 0 0 60px rgba(0, 240, 255, 0.5); }
+            100% { text-shadow: 0 0 50px rgba(0, 240, 255, 0.9), 0 0 100px rgba(0, 240, 255, 0.7); }
+        }
+        
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 30px rgba(0, 240, 255, 0.7), 0 0 60px rgba(0, 240, 255, 0.5); }
+            100% { text-shadow: 0 0 50px rgba(0, 240, 255, 0.9), 0 0 100px rgba(0, 240, 255, 0.7); }
+        }
+        
+        .cover-subtitle {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            color: #a0a0ff;
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+            line-height: 1.4;
+        }
+        
+        .cover-characters {
+            display: flex;
+            justify-content: center;
+            gap: clamp(30px, 8vw, 100px);
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        
+        .character-silhouette {
+            width: clamp(120px, 25vw, 200px);
+            height: clamp(180px, 35vw, 300px);
+            position: relative;
+        }
+        
+        .mario-silhouette {
+            background: linear-gradient(45deg, #FF3A2F, #FF6666);
+            -webkit-clip-path: polygon(50% 0%, 80% 10%, 90% 30%, 95% 50%, 90% 70%, 80% 90%, 50% 100%, 20% 90%, 10% 70%, 5% 50%, 10% 30%, 20% 10%);
+            clip-path: polygon(50% 0%, 80% 10%, 90% 30%, 95% 50%, 90% 70%, 80% 90%, 50% 100%, 20% 90%, 10% 70%, 5% 50%, 10% 30%, 20% 10%);
+            box-shadow: 0 0 50px rgba(255, 58, 47, 0.7);
+        }
+        
+        .luigi-silhouette {
+            background: linear-gradient(45deg, #36B37E, #66FFCC);
+            -webkit-clip-path: polygon(50% 0%, 80% 10%, 90% 30%, 95% 50%, 90% 70%, 80% 90%, 50% 100%, 20% 90%, 10% 70%, 5% 50%, 10% 30%, 20% 10%);
+            clip-path: polygon(50% 0%, 80% 10%, 90% 30%, 95% 50%, 90% 70%, 80% 90%, 50% 100%, 20% 90%, 10% 70%, 5% 50%, 10% 30%, 20% 10%);
+            box-shadow: 0 0 50px rgba(54, 179, 126, 0.7);
+        }
+        
+        .enter-button {
+            background: linear-gradient(45deg, #00F0FF, #FF00FF);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            padding: 15px 40px;
+            cursor: pointer;
+            margin-top: 40px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            -webkit-transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        .enter-button:hover, .enter-button:active {
+            -webkit-transform: scale(1.05);
+            -ms-transform: scale(1.05);
+            transform: scale(1.05);
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.8);
+        }
+        
+        .enter-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+            -webkit-animation: buttonShine 3s infinite linear;
+            animation: buttonShine 3s infinite linear;
+        }
+        
+        @-webkit-keyframes buttonShine {
+            0% { -webkit-transform: translateX(-100%) translateY(-100%) rotate(45deg); transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { -webkit-transform: translateX(100%) translateY(100%) rotate(45deg); transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        @keyframes buttonShine {
+            0% { -webkit-transform: translateX(-100%) translateY(-100%) rotate(45deg); transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { -webkit-transform: translateX(100%) translateY(100%) rotate(45deg); transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        /* 启动界面 */
+        #startScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            min-height: 100vh;
+            background: rgba(10, 10, 30, 0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            z-index: 900;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 20px;
+        }
+        
+        .start-container {
+            background: rgba(20, 20, 50, 0.8);
+            border-radius: 20px;
+            padding: clamp(20px, 5vw, 40px);
+            max-width: 800px;
+            width: 100%;
+            border: 2px solid #00F0FF;
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.3);
+            margin: 20px;
+        }
+        
+        .start-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .start-title {
+            font-size: clamp(2rem, 6vw, 3rem);
+            background: linear-gradient(90deg, #00F0FF, #FF00FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .start-subtitle {
+            color: #8888ff;
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+        }
+        
+        .mode-selection {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .mode-option {
+            background: rgba(40, 40, 80, 0.7);
+            border: 2px solid #4444ff;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            -webkit-transition: all 0.3s ease;
+            flex: 1;
+            min-width: 200px;
+            max-width: 300px;
+        }
+        
+        .mode-option:hover, .mode-option:active {
+            background: rgba(68, 68, 255, 0.3);
+            -webkit-transform: translateY(-5px);
+            -ms-transform: translateY(-5px);
+            transform: translateY(-5px);
+        }
+        
+        .mode-option.active {
+            background: rgba(0, 240, 255, 0.2);
+            border-color: #00F0FF;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+        }
+        
+        .mode-icon {
+            font-size: clamp(2rem, 5vw, 2.5rem);
+            margin-bottom: 10px;
+        }
+        
+        .mode-name {
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            font-weight: bold;
+        }
+        
+        .difficulty-selection {
+            margin-bottom: 30px;
+        }
+        
+        .difficulty-title {
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            color: #00F0FF;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .difficulty-options {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .difficulty-btn {
+            padding: 12px 25px;
+            background: rgba(40, 40, 80, 0.7);
+            border: 2px solid #4444ff;
+            border-radius: 8px;
+            color: #a0a0ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            -webkit-transition: all 0.3s ease;
+            flex: 1;
+            min-width: 100px;
+            max-width: 150px;
+            text-align: center;
+        }
+        
+        .difficulty-btn:hover, .difficulty-btn:active {
+            background: rgba(68, 68, 255, 0.3);
+        }
+        
+        .difficulty-btn.active {
+            background: rgba(0, 240, 255, 0.2);
+            border-color: #00F0FF;
+            color: #00F0FF;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+        }
+        
+        .controls-info {
+            background: rgba(30, 30, 60, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid #00FFD1;
+        }
+        
+        .controls-title {
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            color: #00FFD1;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .player-controls {
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .player-controls.mario {
+            background: rgba(255, 58, 47, 0.1);
+            border: 1px solid #FF3A2F;
+        }
+        
+        .player-controls.luigi {
+            background: rgba(54, 179, 126, 0.1);
+            border: 1px solid #36B37E;
+        }
+        
+        .player-name {
+            font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .player-controls.mario .player-name {
+            color: #FF3A2F;
+        }
+        
+        .player-controls.luigi .player-name {
+            color: #36B37E;
+        }
+        
+        .control-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .control-action {
+            color: #ccccff;
+        }
+        
+        .control-key {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #00F0FF;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-family: monospace;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .start-actions {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .start-button {
+            background: linear-gradient(45deg, #00F0FF, #00FFD1);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            padding: 15px 40px;
+            cursor: pointer;
+            font-weight: bold;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            -webkit-transition: all 0.3s ease;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .start-button:hover, .start-button:active {
+            -webkit-transform: translateY(-5px);
+            -ms-transform: translateY(-5px);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.5);
+        }
+        
+        .back-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #8888ff;
+            border-radius: 10px;
+            color: #8888ff;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            padding: 15px 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            -webkit-transition: all 0.3s ease;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .back-button:hover, .back-button:active {
+            background: rgba(136, 136, 255, 0.2);
+        }
+        
+        /* 主游戏界面 */
+        #mainGame {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            min-height: 100vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .cyber-header {
+            text-align: center;
+            padding: 20px 0;
+            position: relative;
+            flex-shrink: 0;
+            background: rgba(10, 10, 30, 0.8);
+            border-bottom: 2px solid #00F0FF;
+            box-shadow: 0 5px 20px rgba(0, 240, 255, 0.3);
+            width: 100%;
+        }
+        
+        .cyber-title {
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: #fff;
+            text-shadow: 
+                0 0 10px #00F0FF,
+                0 0 20px #00F0FF,
+                0 0 40px #00F0FF;
+            position: relative;
+            -webkit-animation: pulse 2s infinite alternate;
+            animation: pulse 2s infinite alternate;
+        }
+        
+        @-webkit-keyframes pulse {
+            0% { text-shadow: 0 0 10px #00F0FF, 0 0 20px #00F0FF, 0 0 40px #00F0FF; }
+            100% { text-shadow: 0 0 15px #00F0FF, 0 0 30px #00F0FF, 0 0 60px #00F0FF; }
+        }
+        
+        @keyframes pulse {
+            0% { text-shadow: 0 0 10px #00F0FF, 0 0 20px #00F0FF, 0 0 40px #00F0FF; }
+            100% { text-shadow: 0 0 15px #00F0FF, 0 0 30px #00F0FF, 0 0 60px #00F0FF; }
+        }
+        
+        .cyber-subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            color: #a0a0ff;
+            letter-spacing: 2px;
+        }
+        
+        .game-main {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin: 20px auto;
+            padding: 0 20px;
+            max-width: 1400px;
+            width: 100%;
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 150px; /* 为移动端控制留出空间 */
+        }
+        
+        .game-container {
+            flex: 1;
+            min-width: 300px;
+            min-height: 500px;
+            background: rgba(10, 10, 30, 0.7);
+            border-radius: 15px;
+            border: 2px solid #00F0FF;
+            box-shadow: 
+                0 0 20px rgba(0, 240, 255, 0.5),
+                inset 0 0 20px rgba(0, 240, 255, 0.2);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        #gameCanvas {
+            display: block;
+            background-color: #0a0a1a;
+            width: 100%;
+            height: 100%;
+            max-height: 80vh;
+        }
+        
+        .game-controls {
+            flex: 0 0 400px;
+            background: rgba(15, 15, 40, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid #00FFD1;
+            box-shadow: 0 0 20px rgba(0, 255, 209, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-height: 700px;
+            overflow-y: auto;
+            width: 100%;
+        }
+        
+        .panel-title {
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            color: #00F0FF;
+            margin-bottom: 15px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #00F0FF;
+            padding-bottom: 8px;
+        }
+        
+        .hud-dashboard {
+            background: rgba(0, 10, 30, 0.9);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #00F0FF;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+        }
+        
+        .hud-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .hud-item {
+            flex: 1;
+            min-width: 100px;
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .hud-value {
+            font-size: clamp(1.5rem, 3vw, 1.8rem);
+            font-weight: bold;
+            color: #00F0FF;
+            text-shadow: 0 0 8px #00F0FF;
+        }
+        
+        .hud-label {
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            color: #a0a0ff;
+            margin-top: 5px;
+        }
+        
+        .character-status {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .character-card {
+            background: rgba(20, 20, 50, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid;
+            transition: all 0.3s ease;
+            -webkit-transition: all 0.3s ease;
+        }
+        
+        .character-card.mario {
+            border-color: #FF3A2F;
+            box-shadow: 0 0 15px rgba(255, 58, 47, 0.4);
+        }
+        
+        .character-card.luigi {
+            border-color: #36B37E;
+            box-shadow: 0 0 15px rgba(54, 179, 126, 0.4);
+        }
+        
+        .health-bar, .energy-bar {
+            height: 10px;
+            background: rgba(100, 100, 100, 0.5);
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .health-fill, .energy-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+            -webkit-transition: width 0.3s ease;
+        }
+        
+        .character-card.mario .health-fill {
+            background: linear-gradient(90deg, #FF3A2F, #FF6666);
+        }
+        
+        .character-card.luigi .health-fill {
+            background: linear-gradient(90deg, #36B37E, #66FFCC);
+        }
+        
+        .energy-fill {
+            background: linear-gradient(90deg, #00F0FF, #00FFD1);
+        }
+        
+        .level-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .level-btn {
+            width: clamp(40px, 8vw, 50px);
+            height: clamp(40px, 8vw, 50px);
+            background: rgba(20, 20, 50, 0.7);
+            border: 2px solid #4444ff;
+            border-radius: 10px;
+            color: #a0a0ff;
+            font-weight: bold;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            -webkit-transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .level-btn:hover:not(:disabled), .level-btn:active:not(:disabled) {
+            background: rgba(68, 68, 255, 0.3);
+            -webkit-transform: translateY(-3px);
+            -ms-transform: translateY(-3px);
+            transform: translateY(-3px);
+        }
+        
+        .level-btn.active {
+            background: rgba(0, 240, 255, 0.7);
+            color: #fff;
+            border-color: #00F0FF;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.7);
+        }
+        
+        .level-btn.completed {
+            background: rgba(0, 255, 0, 0.2);
+            border-color: #00FFD1;
+            color: #00FFD1;
+        }
+        
+        .level-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* 游戏说明面板 */
+        .game-instructions {
+            background: rgba(30, 30, 60, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #FF00FF;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+            margin-top: 10px;
+        }
+        
+        .instructions-title {
+            font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+            color: #FF00FF;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .instructions-content {
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            color: #ccccff;
+            line-height: 1.4;
+        }
+        
+        .instruction-item {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            position: relative;
+        }
+        
+        .instruction-item:before {
+            content: "›";
+            position: absolute;
+            left: 0;
+            color: #00F0FF;
+        }
+        
+        .important-note {
+            background: rgba(255, 0, 255, 0.1);
+            border-left: 3px solid #FF00FF;
+            padding: 8px;
+            margin: 10px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        /* 移动端虚拟控制 */
+        #mobileControls {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px;
+            z-index: 100;
+            background: rgba(10, 10, 30, 0.85);
+            border-top: 2px solid #00F0FF;
+            box-shadow: 0 -5px 20px rgba(0, 240, 255, 0.3);
+        }
+        
+        .mobile-controls-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: nowrap;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        
+        .mobile-joystick {
+            width: clamp(80px, 20vw, 120px);
+            height: clamp(80px, 20vw, 120px);
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            position: relative;
+            border: 2px solid #00F0FF;
+            touch-action: none;
+        }
+        
+        .joystick-handle {
+            width: clamp(35px, 10vw, 50px);
+            height: clamp(35px, 10vw, 50px);
+            background: rgba(0, 240, 255, 0.7);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            -webkit-transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+        }
+        
+        .mobile-buttons {
+            display: flex;
+            gap: clamp(10px, 3vw, 15px);
+            align-items: center;
+        }
+        
+        .mobile-button {
+            width: clamp(50px, 15vw, 70px);
+            height: clamp(50px, 15vw, 70px);
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            border: 2px solid;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .mobile-button.jump {
+            border-color: #00FFD1;
+        }
+        
+        .mobile-button.skill {
+            border-color: #FF3A2F;
+        }
+        
+        .mobile-button.trigger {
+            border-color: #FF00FF;
+        }
+        
+        /* 游戏结束和暂停菜单 */
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 30, 0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            padding: 20px;
+        }
+        
+        .overlay-content {
+            background: rgba(20, 20, 50, 0.9);
+            border-radius: 20px;
+            padding: clamp(20px, 5vw, 40px);
+            text-align: center;
+            border: 2px solid #00F0FF;
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.5);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .overlay-title {
+            font-size: clamp(2rem, 6vw, 3rem);
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #00F0FF, #FF00FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .overlay-message {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            color: #a0a0ff;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+        
+        .overlay-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 10, 30, 0.5);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #00F0FF, #FF00FF);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #00FFD1, #FF3A2F);
+        }
+        
+        /* 响应式设计 - 针对不同屏幕尺寸优化 */
+        @media (max-width: 1200px) {
+            .game-main {
+                flex-direction: column;
+                height: auto;
+                overflow-y: auto;
+            }
+            
+            .game-controls {
+                width: 100%;
+                max-height: none;
+                flex: 0 0 auto;
+            }
+            
+            .game-container {
+                min-height: 500px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            #mobileControls {
+                display: flex;
+            }
+            
+            .game-main {
+                padding-bottom: 180px; /* 增加底部空间，为移动控制留出更多位置 */
+            }
+            
+            .cover-title {
+                font-size: 3rem;
+            }
+            
+            .cover-characters {
+                gap: 30px;
+            }
+            
+            .character-silhouette {
+                width: 120px;
+                height: 180px;
+            }
+            
+            .start-container {
+                padding: 20px;
+            }
+            
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .mode-selection {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .mode-option {
+                max-width: 100%;
+                width: 100%;
+            }
+            
+            .difficulty-options {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .difficulty-btn {
+                max-width: 100%;
+                width: 100%;
+            }
+            
+            .mobile-controls-container {
+                flex-wrap: wrap;
+                justify-content: space-around;
+            }
+            
+            .mobile-joystick {
+                order: 1;
+            }
+            
+            .mobile-buttons {
+                order: 2;
+                margin-top: 10px;
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .cover-title {
+                font-size: 2.5rem;
+            }
+            
+            .cover-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .enter-button {
+                padding: 12px 30px;
+                font-size: 1.5rem;
+            }
+            
+            .game-main {
+                padding: 10px;
+                padding-bottom: 160px;
+            }
+            
+            .game-container {
+                min-height: 400px;
+            }
+            
+            #gameCanvas {
+                max-height: 70vh;
+            }
+            
+            .mobile-controls-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .mobile-joystick, .mobile-buttons {
+                order: initial;
+            }
+            
+            .mobile-buttons {
+                width: auto;
+            }
+        }
+        
+        /* 高DPI屏幕优化 */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .enter-button, .start-button, .back-button {
+                border-width: 1.5px;
+            }
+            
+            .game-container, .hud-dashboard, .character-card {
+                border-width: 1.5px;
+            }
+        }
+        
+        /* 横屏模式优化 */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .game-main {
+                flex-direction: row;
+                padding-bottom: 120px;
+            }
+            
+            .game-container {
+                min-height: 350px;
+            }
+            
+            #gameCanvas {
+                max-height: 65vh;
+            }
+            
+            #mobileControls {
+                padding: 10px;
+            }
+            
+            .mobile-controls-container {
+                flex-wrap: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 游戏封面 -->
+    <div id="gameCover">
+        <div class="cover-background"></div>
+        <div class="cover-content">
+            <h1 class="cover-title">霓虹管道客</h1>
+            <div class="cover-subtitle">赛博双雄记 · 双人协作科技闯关</div>
+            
+            <div class="cover-characters">
+                <div class="character-silhouette mario-silhouette"></div>
+                <div class="character-silhouette luigi-silhouette"></div>
+            </div>
+            
+            <div style="margin: 30px 0; color: #8888ff; font-size: clamp(1rem, 2.5vw, 1.2rem); text-align: center;">
+                <p>科技马里奥闯关 · 未来都市冒险</p>
+                <p style="margin-top: 10px; font-size: 0.9em;">支持键盘和触摸控制</p>
+            </div>
+            
+            <button class="enter-button" id="enterButton">
+                <i class="fas fa-play-circle"></i> 点击进入
+            </button>
+            
+            <!-- 添加浏览器提示 -->
+            <div style="margin-top: 40px; color: #6666cc; font-size: 0.8rem; max-width: 600px; text-align: center;">
+                <p>最佳体验：Chrome, Firefox, Edge, Safari 最新版本</p>
+                <p>移动设备建议横屏游玩以获得最佳体验</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 启动界面 -->
+    <div id="startScreen">
+        <div class="start-container">
+            <div class="start-header">
+                <h2 class="start-title">霓虹管道客</h2>
+                <div class="start-subtitle">双人协作 · 赛博冒险</div>
+            </div>
+            
+            <div class="mode-selection">
+                <div class="mode-option active" data-mode="dual">
+                    <div class="mode-icon">👥</div>
+                    <div class="mode-name">双人模式</div>
+                    <div style="font-size: 0.9rem; color: #8888ff; margin-top: 10px;">两人协作，分工合作</div>
+                </div>
+                <div class="mode-option" data-mode="single">
+                    <div class="mode-icon">👤</div>
+                    <div class="mode-name">单人模式</div>
+                    <div style="font-size: 0.9rem; color: #8888ff; margin-top: 10px;">一人控制两个角色</div>
+                </div>
+            </div>
+            
+            <div class="difficulty-selection">
+                <div class="difficulty-title">选择难度</div>
+                <div class="difficulty-options">
+                    <div class="difficulty-btn active" data-difficulty="easy">简单</div>
+                    <div class="difficulty-btn" data-difficulty="normal">普通</div>
+                    <div class="difficulty-btn" data-difficulty="hard">困难</div>
+                </div>
+                <div id="difficultyHint" style="text-align: center; margin-top: 10px; color: #00FFD1; font-size: 0.9rem;">
+                    简单：固定管道 · 普通：移动管道 · 困难：高速移动管道
+                </div>
+            </div>
+            
+            <div class="controls-info">
+                <div class="controls-title">操作说明</div>
+                <div class="controls-grid">
+                    <div class="player-controls mario">
+                        <div class="player-name">赛博马里奥</div>
+                        <div class="control-item">
+                            <span class="control-action">左右移动</span>
+                            <span class="control-key">A / D</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="control-action">跳跃</span>
+                            <span class="control-key">W 或 空格</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="control-action">电能技能</span>
+                            <span class="control-key">E</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="control-action">触发按键</span>
+                            <span class="control-key">F</span>
+                        </div>
+                    </div>
+                    
+                    <div class="player-controls luigi">
+                        <div class="player-name">赛博路易吉</div>
+                        <div class="control-item">
+                            <span class="control-action">左右移动</span>
+                            <span class="control-key">← / →</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="control-action">跳跃</span>
+                            <span class="control-key">↑ 或 Shift</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="control-action">磁能技能</span>
+                            <span class="control-key">R</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="control-action">触发按键</span>
+                            <span class="control-key">Ctrl</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="start-actions">
+                <button class="back-button" id="backButton">
+                    <i class="fas fa-arrow-left"></i> 返回
+                </button>
+                <button class="start-button" id="startGameButton">
+                    <i class="fas fa-rocket"></i> 开始闯关
+                </button>
+            </div>
+            
+            <!-- 添加浏览器兼容性提示 -->
+            <div style="margin-top: 30px; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; font-size: 0.8rem; color: #8888ff;">
+                <p><i class="fas fa-info-circle"></i> 提示：如果遇到性能问题，请尝试降低游戏难度或关闭其他标签页</p>
+                <p style="margin-top: 5px;">触摸设备：使用屏幕下方虚拟摇杆和按钮控制角色</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 主游戏界面 -->
+    <div id="mainGame">
+        <header class="cyber-header">
+            <h1 class="cyber-title">赛博双雄记</h1>
+            <div class="cyber-subtitle">霓虹管道客 · 双人协作科技闯关</div>
+            <div style="margin-top: 10px; font-size: 0.9rem; color: #8888ff;">
+                <span id="screenSizeInfo">屏幕尺寸: </span> | 
+                <span id="browserInfo">浏览器: </span> |
+                <button id="fullscreenBtn" style="background: transparent; border: 1px solid #00F0FF; color: #00F0FF; padding: 5px 10px; border-radius: 5px; margin-left: 10px; cursor: pointer;">全屏</button>
+            </div>
+        </header>
+        
+        <main class="game-main">
+            <div class="game-container">
+                <canvas id="gameCanvas"></canvas>
+                <!-- 游戏结束界面 -->
+                <div class="game-overlay" id="gameOverScreen">
+                    <div class="overlay-content">
+                        <h2 class="overlay-title">游戏结束</h2>
+                        <div class="overlay-message">很遗憾，挑战失败了！</div>
+                        <div class="overlay-buttons">
+                            <button class="back-button" id="restartButton">
+                                <i class="fas fa-redo"></i> 重新开始
+                            </button>
+                            <button class="start-button" id="exitToMenuButton">
+                                <i class="fas fa-home"></i> 返回菜单
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- 关卡完成界面 -->
+                <div class="game-overlay" id="levelCompleteScreen">
+                    <div class="overlay-content">
+                        <h2 class="overlay-title">关卡完成！</h2>
+                        <div class="overlay-message" id="levelCompleteMessage">恭喜你们成功通过关卡！</div>
+                        <div class="overlay-buttons">
+                            <button class="start-button" id="nextLevelButton">
+                                <i class="fas fa-arrow-right"></i> 下一关
+                            </button>
+                            <button class="back-button" id="exitToMenuFromCompleteButton">
+                                <i class="fas fa-home"></i> 返回菜单
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- 暂停界面 -->
+                <div class="game-overlay" id="pauseScreen">
+                    <div class="overlay-content">
+                        <h2 class="overlay-title">游戏暂停</h2>
+                        <div class="overlay-buttons">
+                            <button class="start-button" id="resumeButton">
+                                <i class="fas fa-play"></i> 继续
+                            </button>
+                            <button class="back-button" id="restartFromPauseButton">
+                                <i class="fas fa-redo"></i> 重新开始
+                            </button>
+                            <button class="back-button" id="exitFromPauseButton">
+                                <i class="fas fa-home"></i> 返回菜单
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-controls">
+                <div class="hud-dashboard">
+                    <h3 class="panel-title">关卡状态</h3>
+                    <div class="hud-row">
+                        <div class="hud-item">
+                            <div class="hud-value" id="levelDisplay">1</div>
+                            <div class="hud-label">当前关卡</div>
+                        </div>
+                        <div class="hud-item">
+                            <div class="hud-value" id="timeDisplay">00:00</div>
+                            <div class="hud-label">通关时间</div>
+                        </div>
+                        <div class="hud-item">
+                            <div class="hud-value" id="collectibles">0/8</div>
+                            <div class="hud-label">数据碎片</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="character-status">
+                    <div class="character-card mario">
+                        <div style="font-size: 1.3rem; color: #FF3A2F; font-weight: bold; margin-bottom: 10px;">赛博马里奥</div>
+                        <div>生命值</div>
+                        <div class="health-bar">
+                            <div class="health-fill" id="marioHealth" style="width: 100%"></div>
+                        </div>
+                        <div>电能储备</div>
+                        <div class="energy-bar">
+                            <div class="energy-fill" id="marioEnergy" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="character-card luigi">
+                        <div style="font-size: 1.3rem; color: #36B37E; font-weight: bold; margin-bottom: 10px;">赛博路易吉</div>
+                        <div>生命值</div>
+                        <div class="health-bar">
+                            <div class="health-fill" id="luigiHealth" style="width: 100%"></div>
+                        </div>
+                        <div>磁能储备</div>
+                        <div class="energy-bar">
+                            <div class="energy-fill" id="luigiEnergy" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="level-selector">
+                    <h3 class="panel-title">关卡选择</h3>
+                    <div class="level-buttons" id="levelButtons">
+                        <!-- 关卡按钮将通过JS动态生成 -->
+                    </div>
+                </div>
+                
+                <!-- 游戏说明面板 -->
+                <div class="game-instructions">
+                    <h3 class="instructions-title">游戏说明</h3>
+                    <div class="instructions-content">
+                        <div class="instruction-item"><strong>游戏目标：</strong>收集5个数据碎片（总共8个），两个玩家同时到达目标点</div>
+                        <div class="instruction-item"><strong>协作技巧：</strong>可以互相踩着对方跳跃，实现更高更远的移动</div>
+                        <div class="instruction-item"><strong>技能使用：</strong>电能/磁能技能可帮助通过特殊区域</div>
+                        <div class="instruction-item"><strong>危险注意：</strong>避开红色障碍物，触碰会减少生命值</div>
+                        <div class="important-note">
+                            <strong>重要提示：</strong>只需要收集5个碎片即可通关！两个玩家都需要到达目标点！
+                        </div>
+                        <div class="instruction-item"><strong>暂停游戏：</strong>按ESC键暂停游戏</div>
+                        <div class="instruction-item"><strong>重新开始：</strong>游戏失败或卡住时，可按R键重新开始</div>
+                        <div class="instruction-item"><strong>全屏模式：</strong>点击顶部"全屏"按钮获得最佳体验</div>
+                    </div>
+                </div>
+                
+                <!-- 添加控制提示 -->
+                <div style="margin-top: 15px; padding: 10px; background: rgba(0, 240, 255, 0.1); border-radius: 8px; font-size: 0.8rem; color: #a0a0ff; text-align: center;">
+                    <p><i class="fas fa-mobile-alt"></i> 移动设备：使用下方虚拟控制 | <i class="fas fa-keyboard"></i> 桌面设备：使用键盘控制</p>
+                </div>
+            </div>
+        </main>
+        
+        <!-- 移动端虚拟控制 -->
+        <div id="mobileControls">
+            <div class="mobile-controls-container">
+                <div class="mobile-joystick" id="marioJoystick" data-player="mario">
+                    <div class="joystick-handle" id="marioHandle"></div>
+                </div>
+                
+                <div class="mobile-buttons">
+                    <div class="mobile-button jump" id="marioJump" data-action="jump" data-player="mario">跳</div>
+                    <div class="mobile-button skill" id="marioSkill" data-action="skill" data-player="mario">E</div>
+                    <div class="mobile-button trigger" id="marioTrigger" data-action="trigger" data-player="mario">F</div>
+                </div>
+                
+                <div class="mobile-buttons">
+                    <div class="mobile-button jump" id="luigiJump" data-action="jump" data-player="luigi">跳</div>
+                    <div class="mobile-button skill" id="luigiSkill" data-action="skill" data-player="luigi">R</div>
+                    <div class="mobile-button trigger" id="luigiTrigger" data-action="trigger" data-player="luigi">Ctrl</div>
+                </div>
+                
+                <div class="mobile-joystick" id="luigiJoystick" data-player="luigi">
+                    <div class="joystick-handle" id="luigiHandle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 浏览器检测和兼容性处理
+        const BrowserInfo = {
+            isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+            isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent),
+            isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent),
+            isChrome: /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor),
+            isFirefox: typeof InstallTrigger !== 'undefined',
+            isEdge: /Edg/.test(navigator.userAgent),
+            getBrowserName: function() {
+                if (this.isChrome) return "Chrome";
+                if (this.isFirefox) return "Firefox";
+                if (this.isSafari) return "Safari";
+                if (this.isEdge) return "Edge";
+                return "其他浏览器";
+            }
+        };
+        
+        // 游戏状态管理
+        const GameState = {
+            currentState: 'cover',
+            gameMode: 'dual',
+            difficulty: 'easy',
+            currentLevel: 1,
+            unlockedLevels: [1],
+            gameRunning: false,
+            gameTime: 0,
+            gameTimer: null,
+            collectiblesCollected: 0,
+            totalCollectibles: 8, // 每个关卡总共8个碎片
+            requiredCollectibles: 5, // 只需要5个即可通关
+            isPaused: false,
+            isFullscreen: false,
+            
+            // 难度配置
+            difficultyConfig: {
+                easy: {
+                    pipeSpeed: 0,
+                    obstacleDensity: 0.3,
+                    enemySpeed: 1,
+                    playerHealth: 150,
+                    collectibleCount: 8
+                },
+                normal: {
+                    pipeSpeed: 2,
+                    obstacleDensity: 0.6,
+                    enemySpeed: 1.5,
+                    playerHealth: 100,
+                    collectibleCount: 8
+                },
+                hard: {
+                    pipeSpeed: 4,
+                    obstacleDensity: 0.9,
+                    enemySpeed: 2,
+                    playerHealth: 80,
+                    collectibleCount: 8
+                }
+            }
+        };
+        
+        // 玩家状态
+        const Players = {
+            mario: {
+                x: 100,
+                y: 400,
+                width: 40,
+                height: 60,
+                health: 100,
+                energy: 100,
+                speed: 5,
+                jumping: false,
+                jumpForce: 16,
+                gravity: 0.8,
+                velocityX: 0,
+                velocityY: 0,
+                onGround: false,
+                canDoubleJump: false,
+                lastPlatform: null,
+                isOnOtherPlayer: false,
+                skillCooldown: 0,
+                color: '#FF3A2F',
+                neonColor: '#00F0FF',
+                cyberHelmet: true,
+                armorType: 'light',
+                trailEffect: [],
+                touchControl: { active: false, x: 0, y: 0, startX: 0, startY: 0 }
+            },
+            luigi: {
+                x: 180,
+                y: 400,
+                width: 40,
+                height: 60,
+                health: 100,
+                energy: 100,
+                speed: 5,
+                jumping: false,
+                jumpForce: 16,
+                gravity: 0.8,
+                velocityX: 0,
+                velocityY: 0,
+                onGround: false,
+                canDoubleJump: false,
+                lastPlatform: null,
+                isOnOtherPlayer: false,
+                skillCooldown: 0,
+                color: '#36B37E',
+                neonColor: '#00FFD1',
+                cyberHelmet: true,
+                armorType: 'medium',
+                trailEffect: [],
+                touchControl: { active: false, x: 0, y: 0, startX: 0, startY: 0 }
+            }
+        };
+        
+        // 游戏元素
+        let platforms = [];
+        let obstacles = [];
+        let collectibles = [];
+        let pipes = [];
+        let particles = [];
+        let effects = [];
+        let goal = null;
+        
+        // 按键状态
+        const Keys = {};
+        
+        // DOM元素
+        const gameCover = document.getElementById('gameCover');
+        const startScreen = document.getElementById('startScreen');
+        const mainGame = document.getElementById('mainGame');
+        const enterButton = document.getElementById('enterButton');
+        const backButton = document.getElementById('backButton');
+        const startGameButton = document.getElementById('startGameButton');
+        const gameCanvas = document.getElementById('gameCanvas');
+        const ctx = gameCanvas.getContext('2d');
+        
+        // 游戏结束和暂停相关元素
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const levelCompleteScreen = document.getElementById('levelCompleteScreen');
+        const levelCompleteMessage = document.getElementById('levelCompleteMessage');
+        const pauseScreen = document.getElementById('pauseScreen');
+        const restartButton = document.getElementById('restartButton');
+        const exitToMenuButton = document.getElementById('exitToMenuButton');
+        const nextLevelButton = document.getElementById('nextLevelButton');
+        const exitToMenuFromCompleteButton = document.getElementById('exitToMenuFromCompleteButton');
+        const resumeButton = document.getElementById('resumeButton');
+        const restartFromPauseButton = document.getElementById('restartFromPauseButton');
+        const exitFromPauseButton = document.getElementById('exitFromPauseButton');
+        
+        // HUD元素
+        const levelDisplay = document.getElementById('levelDisplay');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const collectiblesDisplay = document.getElementById('collectibles');
+        const marioHealth = document.getElementById('marioHealth');
+        const marioEnergy = document.getElementById('marioEnergy');
+        const luigiHealth = document.getElementById('luigiHealth');
+        const luigiEnergy = document.getElementById('luigiEnergy');
+        
+        // 全屏按钮
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const screenSizeInfo = document.getElementById('screenSizeInfo');
+        const browserInfo = document.getElementById('browserInfo');
+        
+        // 移动控制元素
+        const mobileControls = document.getElementById('mobileControls');
+        const marioJoystick = document.getElementById('marioJoystick');
+        const luigiJoystick = document.getElementById('luigiJoystick');
+        const marioHandle = document.getElementById('marioHandle');
+        const luigiHandle = document.getElementById('luigiHandle');
+        
+        // 初始化
+        function init() {
+            console.log("游戏初始化开始...");
+            
+            // 设置浏览器信息显示
+            browserInfo.textContent = `浏览器: ${BrowserInfo.getBrowserName()}`;
+            updateScreenSizeInfo();
+            
+            // 强制设置Canvas初始尺寸（修复初始化时尺寸为0的问题）
+            gameCanvas.width = 800;
+            gameCanvas.height = 600;
+            
+            // 设置初始显示状态
+            gameCover.style.display = 'flex';
+            startScreen.style.display = 'none';
+            mainGame.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            levelCompleteScreen.style.display = 'none';
+            pauseScreen.style.display = 'none';
+            
+            // 根据设备类型显示/隐藏移动控制
+            if (BrowserInfo.isMobile) {
+                mobileControls.style.display = 'flex';
+            }
+            
+            setupEventListeners();
+            setupCanvas();
+            generateLevelButtons();
+            
+            // 初始显示封面
+            showCover();
+            
+            console.log("游戏初始化完成，当前状态:", GameState.currentState);
+            console.log("设备类型:", BrowserInfo.isMobile ? "移动设备" : "桌面设备");
+        }
+        
+        // 更新屏幕尺寸信息
+        function updateScreenSizeInfo() {
+            screenSizeInfo.textContent = `屏幕尺寸: ${window.innerWidth}×${window.innerHeight}`;
+        }
+        
+        // 设置事件监听器
+        function setupEventListeners() {
+            console.log("设置事件监听器...");
+            
+            // 封面按钮
+            enterButton.addEventListener('click', () => {
+                console.log("进入按钮点击");
+                hideCover();
+                showStartScreen();
+            });
+            
+            // 启动界面按钮
+            backButton.addEventListener('click', () => {
+                console.log("返回按钮点击");
+                hideStartScreen();
+                showCover();
+            });
+            
+            startGameButton.addEventListener('click', () => {
+                console.log("开始游戏按钮点击，难度:", GameState.difficulty);
+                hideStartScreen();
+                startGame();
+            });
+            
+            // 模式选择
+            document.querySelectorAll('.mode-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    document.querySelectorAll('.mode-option').forEach(opt => opt.classList.remove('active'));
+                    option.classList.add('active');
+                    GameState.gameMode = option.dataset.mode;
+                    console.log("选择模式:", GameState.gameMode);
+                });
+            });
+            
+            // 难度选择
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    GameState.difficulty = btn.dataset.difficulty;
+                    console.log("选择难度:", GameState.difficulty);
+                    
+                    // 更新难度提示
+                    const hintElement = document.getElementById('difficultyHint');
+                    if (GameState.difficulty === 'easy') {
+                        hintElement.textContent = '简单：固定管道 · 普通：移动管道 · 困难：高速移动管道';
+                    } else if (GameState.difficulty === 'normal') {
+                        hintElement.textContent = '普通难度：管道会缓慢移动，障碍增多';
+                    } else {
+                        hintElement.textContent = '困难难度：管道高速移动，障碍密集，挑战极限';
+                    }
+                });
+            });
+            
+            // 游戏控制按钮
+            restartButton.addEventListener('click', restartGame);
+            exitToMenuButton.addEventListener('click', exitToMenu);
+            nextLevelButton.addEventListener('click', goToNextLevel);
+            exitToMenuFromCompleteButton.addEventListener('click', exitToMenu);
+            resumeButton.addEventListener('click', resumeGame);
+            restartFromPauseButton.addEventListener('click', restartGame);
+            exitFromPauseButton.addEventListener('click', exitToMenu);
+            
+            // 全屏功能
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
+            
+            // 键盘控制
+            window.addEventListener('keydown', (e) => {
+                const key = e.key.toLowerCase();
+                Keys[key] = true;
+                
+                // 暂停游戏
+                if (e.key === 'Escape' && GameState.currentState === 'playing') {
+                    togglePause();
+                }
+                
+                // 重新开始游戏 (R键)
+                if (key === 'r' && GameState.currentState === 'playing') {
+                    restartGame();
+                }
+                
+                // 防止空格键滚动页面
+                if (e.key === ' ') {
+                    e.preventDefault();
+                }
+            });
+            
+            window.addEventListener('keyup', (e) => {
+                const key = e.key.toLowerCase();
+                Keys[key] = false;
+                
+                // 处理方向键的keyup事件
+                if (e.key === 'ArrowUp') {
+                    Keys['arrowup'] = false;
+                }
+                if (e.key === 'ArrowDown') {
+                    Keys['arrowdown'] = false;
+                }
+                if (e.key === 'ArrowLeft') {
+                    Keys['arrowleft'] = false;
+                }
+                if (e.key === 'ArrowRight') {
+                    Keys['arrowright'] = false;
+                }
+            });
+            
+            // 窗口大小调整
+            window.addEventListener('resize', () => {
+                setupCanvas();
+                updateScreenSizeInfo();
+            });
+            
+            // 移动端触摸控制事件
+            setupTouchControls();
+            
+            // 防止移动端页面滚动
+            document.addEventListener('touchmove', (e) => {
+                if (GameState.currentState === 'playing') {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+            
+            // 处理页面可见性变化（切换标签页时暂停游戏）
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden && GameState.gameRunning && !GameState.isPaused) {
+                    togglePause();
+                }
+            });
+        }
+        
+        // 设置触摸控制
+        function setupTouchControls() {
+            // 为每个移动按钮添加触摸事件
+            document.querySelectorAll('.mobile-button').forEach(button => {
+                const player = button.dataset.player;
+                const action = button.dataset.action;
+                
+                // 触摸开始
+                button.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    if (player === 'mario') {
+                        if (action === 'jump') {
+                            Keys['w'] = true;
+                        } else if (action === 'skill') {
+                            Keys['e'] = true;
+                        } else if (action === 'trigger') {
+                            Keys['f'] = true;
+                        }
+                    } else if (player === 'luigi') {
+                        if (action === 'jump') {
+                            Keys['arrowup'] = true;
+                        } else if (action === 'skill') {
+                            Keys['r'] = true;
+                        } else if (action === 'trigger') {
+                            Keys['control'] = true;
+                        }
+                    }
+                    button.style.transform = 'scale(0.9)';
+                    button.style.opacity = '0.8';
+                });
+                
+                // 触摸结束
+                button.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    if (player === 'mario') {
+                        if (action === 'jump') {
+                            Keys['w'] = false;
+                        } else if (action === 'skill') {
+                            Keys['e'] = false;
+                        } else if (action === 'trigger') {
+                            Keys['f'] = false;
+                        }
+                    } else if (player === 'luigi') {
+                        if (action === 'jump') {
+                            Keys['arrowup'] = false;
+                        } else if (action === 'skill') {
+                            Keys['r'] = false;
+                        } else if (action === 'trigger') {
+                            Keys['control'] = false;
+                        }
+                    }
+                    button.style.transform = 'scale(1)';
+                    button.style.opacity = '1';
+                });
+            });
+            
+            // 虚拟摇杆触摸事件
+            setupJoystick(marioJoystick, Players.mario);
+            setupJoystick(luigiJoystick, Players.luigi);
+        }
+        
+        // 设置虚拟摇杆
+        function setupJoystick(joystickElement, player) {
+            const handle = joystickElement.querySelector('.joystick-handle');
+            const joystickRect = joystickElement.getBoundingClientRect();
+            const radius = joystickRect.width / 2;
+            const handleRadius = handle.offsetWidth / 2;
+            
+            let active = false;
+            
+            // 触摸开始
+            joystickElement.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                active = true;
+                player.touchControl.active = true;
+                updateJoystick(e, joystickElement, player, radius, handle);
+            });
+            
+            // 触摸移动
+            joystickElement.addEventListener('touchmove', (e) => {
+                if (!active) return;
+                e.preventDefault();
+                updateJoystick(e, joystickElement, player, radius, handle);
+            });
+            
+            // 触摸结束
+            joystickElement.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                active = false;
+                player.touchControl.active = false;
+                resetJoystick(handle, player);
+            });
+            
+            // 鼠标事件（为桌面浏览器调试用）
+            joystickElement.addEventListener('mousedown', (e) => {
+                if (!BrowserInfo.isMobile) {
+                    active = true;
+                    player.touchControl.active = true;
+                    updateJoystick(e, joystickElement, player, radius, handle);
+                }
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!BrowserInfo.isMobile && active) {
+                    updateJoystick(e, joystickElement, player, radius, handle);
+                }
+            });
+            
+            document.addEventListener('mouseup', (e) => {
+                if (!BrowserInfo.isMobile && active) {
+                    active = false;
+                    player.touchControl.active = false;
+                    resetJoystick(handle, player);
+                }
+            });
+        }
+        
+        // 更新摇杆位置
+        function updateJoystick(e, joystickElement, player, radius, handle) {
+            const joystickRect = joystickElement.getBoundingClientRect();
+            const centerX = joystickRect.left + radius;
+            const centerY = joystickRect.top + radius;
+            
+            let clientX, clientY;
+            
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            const deltaX = clientX - centerX;
+            const deltaY = clientY - centerY;
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            
+            // 限制摇杆移动范围
+            let limitedDistance = Math.min(distance, radius - handle.offsetWidth / 2);
+            const angle = Math.atan2(deltaY, deltaX);
+            
+            const handleX = Math.cos(angle) * limitedDistance;
+            const handleY = Math.sin(angle) * limitedDistance;
+            
+            // 移动摇杆手柄
+            handle.style.transform = `translate(${handleX}px, ${handleY}px)`;
+            
+            // 设置玩家移动速度（基于摇杆位置）
+            const normalizedX = handleX / (radius - handle.offsetWidth / 2);
+            const normalizedY = handleY / (radius - handle.offsetWidth / 2);
+            
+            // 设置玩家速度
+            player.velocityX = normalizedX * player.speed;
+            
+            // 如果摇杆向上推，触发跳跃
+            if (normalizedY < -0.5 && (player.onGround || player.canDoubleJump)) {
+                jump(player);
+            }
+        }
+        
+        // 重置摇杆位置
+        function resetJoystick(handle, player) {
+            handle.style.transform = 'translate(-50%, -50%)';
+            player.velocityX = 0;
+        }
+        
+        // 设置Canvas
+        function setupCanvas() {
+            // 计算适合的尺寸，保持16:9比例
+            const container = gameCanvas.parentElement;
+            const containerWidth = container.clientWidth || 800;
+            const containerHeight = container.clientHeight || 600;
+            
+            // 保持16:9的宽高比
+            const aspectRatio = 16 / 9;
+            let width, height;
+            
+            if (containerWidth / containerHeight > aspectRatio) {
+                height = containerHeight;
+                width = height * aspectRatio;
+            } else {
+                width = containerWidth;
+                height = width / aspectRatio;
+            }
+            
+            // 确保最小尺寸
+            width = Math.max(width, 300);
+            height = Math.max(height, 200);
+            
+            gameCanvas.width = width;
+            gameCanvas.height = height;
+            
+            // 如果游戏正在运行，重新绘制
+            if (GameState.gameRunning) {
+                draw();
+            }
+        }
+        
+        // 生成关卡按钮
+        function generateLevelButtons() {
+            const levelButtonsContainer = document.getElementById('levelButtons');
+            levelButtonsContainer.innerHTML = '';
+            
+            // 生成5个关卡按钮
+            for (let i = 1; i <= 5; i++) {
+                const button = document.createElement('button');
+                button.className = 'level-btn';
+                button.textContent = i;
+                button.dataset.level = i;
+                
+                // 检查是否已解锁
+                if (!GameState.unlockedLevels.includes(i)) {
+                    button.disabled = true;
+                } else if (GameState.currentLevel === i) {
+                    button.classList.add('active');
+                }
+                
+                // 添加点击事件
+                button.addEventListener('click', () => {
+                    if (GameState.unlockedLevels.includes(i)) {
+                        GameState.currentLevel = i;
+                        restartGame();
+                    }
+                });
+                
+                levelButtonsContainer.appendChild(button);
+            }
+        }
+        
+        // 显示/隐藏界面
+        function showCover() {
+            gameCover.style.display = 'flex';
+            GameState.currentState = 'cover';
+        }
+        
+        function hideCover() {
+            gameCover.style.opacity = 0;
+            setTimeout(() => {
+                gameCover.style.display = 'none';
+                gameCover.style.opacity = 1;
+            }, 1000);
+        }
+        
+        function showStartScreen() {
+            startScreen.style.display = 'flex';
+            GameState.currentState = 'start';
+        }
+        
+        function hideStartScreen() {
+            startScreen.style.display = 'none';
+        }
+        
+        function showMainGame() {
+            mainGame.style.display = 'flex';
+            GameState.currentState = 'playing';
+        }
+        
+        // 开始游戏
+        function startGame() {
+            console.log("开始游戏，关卡:", GameState.currentLevel);
+            
+            // 初始化游戏状态
+            GameState.gameRunning = true;
+            GameState.gameTime = 0;
+            GameState.collectiblesCollected = 0;
+            GameState.isPaused = false;
+            
+            // 确保Canvas尺寸正确
+            setupCanvas();
+            
+            // 初始化玩家状态（延迟执行，确保Canvas尺寸已确定）
+            setTimeout(() => {
+                resetPlayers();
+            }, 100);
+            
+            // 加载当前关卡
+            loadLevel(GameState.currentLevel);
+            
+            // 显示游戏界面
+            showMainGame();
+            
+            // 启动计时器
+            startGameTimer();
+            
+            // 启动游戏循环
+            requestAnimationFrame(gameLoop);
+            
+            // 更新UI
+            updateHUD();
+        }
+        
+        // 重置玩家状态
+        function resetPlayers() {
+            const config = GameState.difficultyConfig[GameState.difficulty];
+            const canvasHeight = gameCanvas.height;
+            
+            Players.mario = {
+                ...Players.mario,
+                x: 100,
+                y: canvasHeight - 150,
+                health: config.playerHealth,
+                energy: 100,
+                velocityX: 0,
+                velocityY: 0,
+                jumping: false,
+                onGround: true,
+                canDoubleJump: false,
+                skillCooldown: 0,
+                trailEffect: [],
+                touchControl: { active: false, x: 0, y: 0, startX: 0, startY: 0 }
+            };
+            
+            Players.luigi = {
+                ...Players.luigi,
+                x: 200,
+                y: canvasHeight - 150,
+                health: config.playerHealth,
+                energy: 100,
+                velocityX: 0,
+                velocityY: 0,
+                jumping: false,
+                onGround: true,
+                canDoubleJump: false,
+                skillCooldown: 0,
+                trailEffect: [],
+                touchControl: { active: false, x: 0, y: 0, startX: 0, startY: 0 }
+            };
+            
+            // 更新UI
+            marioHealth.style.width = '100%';
+            marioEnergy.style.width = '100%';
+            luigiHealth.style.width = '100%';
+            luigiEnergy.style.width = '100%';
+        }
+        
+        // 加载关卡 - 修复：确保每个关卡都有8个碎片，只需要收集5个即可通关
+        function loadLevel(level) {
+            console.log("加载关卡:", level);
+            
+            // 清空游戏元素
+            platforms = [];
+            obstacles = [];
+            collectibles = [];
+            pipes = [];
+            particles = [];
+            effects = [];
+            goal = null;
+            
+            // 设置关卡显示
+            levelDisplay.textContent = level;
+            
+            // 根据关卡生成不同的内容
+            const width = gameCanvas.width;
+            const height = gameCanvas.height;
+            
+            // 底部平台（加宽，确保玩家不会掉出）
+            platforms.push({
+                x: 0,
+                y: height - 50,
+                width: width,
+                height: 50,
+                color: '#4444ff',
+                neonColor: '#00F0FF'
+            });
+            
+            // 设置每个关卡需要收集的碎片数量（只需5个即可通关）
+            GameState.totalCollectibles = 8; // 总共8个碎片
+            GameState.collectiblesCollected = 0; // 重置收集数量
+            
+            // 更新HUD显示
+            collectiblesDisplay.textContent = `${GameState.collectiblesCollected}/8`;
+            
+            // 根据不同关卡生成不同的平台和元素
+            if (level === 1) {
+                // 第一关：简单介绍游戏机制
+                platforms.push(
+                    {x: 200, y: height - 180, width: 200, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 500, y: height - 280, width: 200, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 700, y: height - 180, width: 200, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 350, y: height - 350, width: 150, height: 20, color: '#4444ff', neonColor: '#00F0FF'}
+                );
+                
+                // 收集物 - 8个碎片
+                const level1Collectibles = [
+                    {x: 250, y: height - 220},
+                    {x: 450, y: height - 320},
+                    {x: 550, y: height - 320},
+                    {x: 750, y: height - 220},
+                    {x: 400, y: height - 390},
+                    {x: 150, y: height - 120}, // 地面上的碎片
+                    {x: 600, y: height - 120}, // 地面上的碎片
+                    {x: 900, y: height - 120}  // 地面上的碎片
+                ];
+                
+                for (let i = 0; i < 8; i++) {
+                    collectibles.push({
+                        x: level1Collectibles[i].x,
+                        y: level1Collectibles[i].y,
+                        width: 25,
+                        height: 25,
+                        color: '#FFD700',
+                        collected: false
+                    });
+                }
+                
+                // 目标点
+                goal = {
+                    x: width - 150,
+                    y: height - 120,
+                    width: 70,
+                    height: 70,
+                    color: '#00FFD1'
+                };
+                
+            } else if (level === 2) {
+                // 第二关：增加一些挑战
+                platforms.push(
+                    {x: 200, y: height - 180, width: 180, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 450, y: height - 250, width: 180, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 700, y: height - 200, width: 180, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 900, y: height - 280, width: 180, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 600, y: height - 350, width: 150, height: 20, color: '#4444ff', neonColor: '#00F0FF'}
+                );
+                
+                // 移动管道
+                pipes.push(
+                    {x: 300, y: height - 300, width: 100, height: 15, color: '#FF3A2F', neonColor: '#FF6666', direction: 1}
+                );
+                
+                // 收集物 - 8个碎片
+                const level2Collectibles = [
+                    {x: 220, y: height - 220},
+                    {x: 470, y: height - 290},
+                    {x: 540, y: height - 320},
+                    {x: 730, y: height - 240},
+                    {x: 620, y: height - 390},
+                    {x: 100, y: height - 100}, // 地面上的碎片
+                    {x: 400, y: height - 100}, // 地面上的碎片
+                    {x: 800, y: height - 100}  // 地面上的碎片
+                ];
+                
+                for (let i = 0; i < 8; i++) {
+                    collectibles.push({
+                        x: level2Collectibles[i].x,
+                        y: level2Collectibles[i].y,
+                        width: 25,
+                        height: 25,
+                        color: '#FFD700',
+                        collected: false
+                    });
+                }
+                
+                // 障碍物
+                obstacles.push(
+                    {x: 500, y: height - 100, width: 40, height: 40, color: '#880000', neonColor: '#FF0000'}
+                );
+                
+                // 目标点
+                goal = {
+                    x: width - 150,
+                    y: height - 300,
+                    width: 70,
+                    height: 70,
+                    color: '#00FFD1'
+                };
+            } else if (level === 3) {
+                // 第三关：更多挑战 - 修复：确保有8个碎片
+                platforms.push(
+                    {x: 200, y: height - 180, width: 200, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 500, y: height - 280, width: 200, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 800, y: height - 220, width: 200, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 1000, y: height - 300, width: 200, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 650, y: height - 400, width: 150, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 400, y: height - 450, width: 120, height: 20, color: '#4444ff', neonColor: '#00F0FF'} // 新增平台
+                );
+                
+                // 移动管道
+                pipes.push(
+                    {x: 300, y: height - 300, width: 100, height: 15, color: '#FF3A2F', neonColor: '#FF6666', direction: 1},
+                    {x: 700, y: height - 250, width: 100, height: 15, color: '#36B37E', neonColor: '#66FFCC', direction: -1}
+                );
+                
+                // 收集物 - 确保有8个碎片
+                const level3Collectibles = [
+                    // 平台1上
+                    {x: 220, y: height - 220},
+                    // 平台2上
+                    {x: 540, y: height - 320},
+                    // 平台3上
+                    {x: 820, y: height - 260},
+                    // 平台4上
+                    {x: 1050, y: height - 340},
+                    // 平台5上（较高的平台）
+                    {x: 680, y: height - 440},
+                    // 平台6上（新增平台）
+                    {x: 420, y: height - 490},
+                    // 地面上的碎片1
+                    {x: 150, y: height - 100},
+                    // 地面上的碎片2
+                    {x: 900, y: height - 100}
+                ];
+                
+                for (let i = 0; i < 8; i++) {
+                    collectibles.push({
+                        x: level3Collectibles[i].x,
+                        y: level3Collectibles[i].y,
+                        width: 25,
+                        height: 25,
+                        color: '#FFD700',
+                        collected: false
+                    });
+                }
+                
+                // 障碍物
+                obstacles.push(
+                    {x: 400, y: height - 100, width: 40, height: 40, color: '#880000', neonColor: '#FF0000'},
+                    {x: 800, y: height - 100, width: 40, height: 40, color: '#880000', neonColor: '#FF0000'}
+                );
+                
+                // 目标点
+                goal = {
+                    x: width - 150,
+                    y: height - 250,
+                    width: 70,
+                    height: 70,
+                    color: '#00FFD1'
+                };
+                
+            } else if (level === 4) {
+                // 第四关：更复杂的地形 - 修复：确保有8个碎片
+                platforms.push(
+                    {x: 150, y: height - 150, width: 180, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 400, y: height - 250, width: 180, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 650, y: height - 180, width: 180, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 850, y: height - 300, width: 180, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 1050, y: height - 220, width: 180, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 550, y: height - 380, width: 150, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 750, y: height - 450, width: 120, height: 20, color: '#4444ff', neonColor: '#00F0FF'}, // 新增平台1
+                    {x: 950, y: height - 380, width: 120, height: 20, color: '#4444ff', neonColor: '#00F0FF'}  // 新增平台2
+                );
+                
+                // 移动管道
+                pipes.push(
+                    {x: 250, y: height - 250, width: 120, height: 15, color: '#FF3A2F', neonColor: '#FF6666', direction: 1},
+                    {x: 750, y: height - 220, width: 120, height: 15, color: '#36B37E', neonColor: '#66FFCC', direction: -1},
+                    {x: 950, y: height - 340, width: 120, height: 15, color: '#FF00FF', neonColor: '#FF66FF', direction: 1}
+                );
+                
+                // 收集物 - 确保有8个碎片
+                const level4Collectibles = [
+                    // 平台1上
+                    {x: 170, y: height - 190},
+                    // 平台2上
+                    {x: 420, y: height - 290},
+                    // 平台3上
+                    {x: 680, y: height - 220},
+                    // 平台4上
+                    {x: 880, y: height - 340},
+                    // 平台5上
+                    {x: 580, y: height - 420},
+                    // 平台6上（较高的平台）
+                    {x: 780, y: height - 490},
+                    // 平台7上
+                    {x: 980, y: height - 420},
+                    // 地面上的碎片
+                    {x: 300, y: height - 100}
+                ];
+                
+                for (let i = 0; i < 8; i++) {
+                    collectibles.push({
+                        x: level4Collectibles[i].x,
+                        y: level4Collectibles[i].y,
+                        width: 25,
+                        height: 25,
+                        color: '#FFD700',
+                        collected: false
+                    });
+                }
+                
+                // 障碍物
+                obstacles.push(
+                    {x: 350, y: height - 80, width: 40, height: 40, color: '#880000', neonColor: '#FF0000'},
+                    {x: 700, y: height - 80, width: 40, height: 40, color: '#880000', neonColor: '#FF0000'},
+                    {x: 900, y: height - 80, width: 40, height: 40, color: '#880000', neonColor: '#FF0000'}
+                );
+                
+                // 目标点
+                goal = {
+                    x: width - 150,
+                    y: height - 180,
+                    width: 70,
+                    height: 70,
+                    color: '#00FFD1'
+                };
+                
+            } else if (level === 5) {
+                // 第五关：最终挑战 - 修复：确保有8个碎片
+                platforms.push(
+                    {x: 100, y: height - 120, width: 200, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 350, y: height - 220, width: 200, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 600, y: height - 320, width: 200, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 850, y: height - 250, width: 200, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 1050, y: height - 180, width: 200, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 450, y: height - 420, width: 180, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 750, y: height - 380, width: 180, height: 20, color: '#4444ff', neonColor: '#00F0FF'},
+                    {x: 250, y: height - 350, width: 120, height: 20, color: '#4444ff', neonColor: '#00F0FF'}, // 新增平台1
+                    {x: 950, y: height - 320, width: 120, height: 20, color: '#4444ff', neonColor: '#00F0FF'}  // 新增平台2
+                );
+                
+                // 移动管道
+                pipes.push(
+                    {x: 200, y: height - 180, width: 150, height: 15, color: '#FF3A2F', neonColor: '#FF6666', direction: 1},
+                    {x: 500, y: height - 270, width: 150, height: 15, color: '#36B37E', neonColor: '#66FFCC', direction: -1},
+                    {x: 800, y: height - 300, width: 150, height: 15, color: '#FF00FF', neonColor: '#FF66FF', direction: 1},
+                    {x: 950, y: height - 200, width: 150, height: 15, color: '#00F0FF', neonColor: '#66FFFF', direction: -1}
+                );
+                
+                // 收集物 - 确保有8个碎片
+                const level5Collectibles = [
+                    // 平台1上
+                    {x: 120, y: height - 160},
+                    // 平台2上
+                    {x: 380, y: height - 260},
+                    // 平台6上（较高的平台）
+                    {x: 480, y: height - 460},
+                    // 平台7上（较高的平台）
+                    {x: 780, y: height - 420},
+                    // 平台5上
+                    {x: 1090, y: height - 220},
+                    // 平台8上（新增平台1）
+                    {x: 280, y: height - 390},
+                    // 平台9上（新增平台2）
+                    {x: 980, y: height - 360},
+                    // 地面上的碎片
+                    {x: 500, y: height - 100}
+                ];
+                
+                for (let i = 0; i < 8; i++) {
+                    collectibles.push({
+                        x: level5Collectibles[i].x,
+                        y: level5Collectibles[i].y,
+                        width: 25,
+                        height: 25,
+                        color: '#FFD700',
+                        collected: false
+                    });
+                }
+                
+                // 障碍物
+                obstacles.push(
+                    {x: 300, y: height - 60, width: 40, height: 40, color: '#880000', neonColor: '#FF0000'},
+                    {x: 550, y: height - 60, width: 40, height: 40, color: '#880000', neonColor: '#FF0000'},
+                    {x: 800, y: height - 60, width: 40, height: 40, color: '#880000', neonColor: '#FF0000'},
+                    {x: 1000, y: height - 60, width: 40, height: 40, color: '#880000', neonColor: '#FF0000'}
+                );
+                
+                // 目标点
+                goal = {
+                    x: width - 150,
+                    y: height - 100,
+                    width: 70,
+                    height: 70,
+                    color: '#00FFD1'
+                };
+            }
+            
+            console.log(`第${level}关已加载，碎片数量: ${collectibles.length}`);
+        }
+        
+        // 启动游戏计时器
+        function startGameTimer() {
+            if (GameState.gameTimer) {
+                clearInterval(GameState.gameTimer);
+            }
+            
+            GameState.gameTime = 0;
+            GameState.gameTimer = setInterval(() => {
+                if (GameState.gameRunning && !GameState.isPaused) {
+                    GameState.gameTime++;
+                    updateTimeDisplay();
+                }
+            }, 1000);
+        }
+        
+        // 更新时间显示
+        function updateTimeDisplay() {
+            const minutes = Math.floor(GameState.gameTime / 60);
+            const seconds = GameState.gameTime % 60;
+            timeDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // 更新HUD
+        function updateHUD() {
+            levelDisplay.textContent = GameState.currentLevel;
+            collectiblesDisplay.textContent = `${GameState.collectiblesCollected}/${GameState.totalCollectibles}`;
+            marioHealth.style.width = `${Players.mario.health}%`;
+            marioEnergy.style.width = `${Players.mario.energy}%`;
+            luigiHealth.style.width = `${Players.luigi.health}%`;
+            luigiEnergy.style.width = `${Players.luigi.energy}%`;
+            updateTimeDisplay();
+        }
+        
+        // 游戏主循环
+        function gameLoop(timestamp) {
+            if (!GameState.gameRunning) return;
+            
+            if (!GameState.isPaused) {
+                // 处理输入
+                handleInput();
+                
+                // 更新游戏状态
+                update();
+                
+                // 检测碰撞
+                checkCollisions();
+                
+                // 检测游戏结束条件
+                checkGameConditions();
+            }
+            
+            // 绘制游戏
+            draw();
+            
+            // 继续循环
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // 处理输入
+        function handleInput() {
+            // 马里奥控制
+            if (Keys['a'] || (Players.mario.touchControl.active && Players.mario.velocityX < 0)) {
+                Players.mario.velocityX = -Players.mario.speed;
+            } else if (Keys['d'] || (Players.mario.touchControl.active && Players.mario.velocityX > 0)) {
+                Players.mario.velocityX = Players.mario.speed;
+            } else if (!Players.mario.touchControl.active) {
+                Players.mario.velocityX = 0;
+            }
+            
+            // 马里奥跳跃键：W或空格
+            if ((Keys['w'] || Keys[' ']) && (Players.mario.onGround || Players.mario.canDoubleJump)) {
+                jump(Players.mario);
+                // 防止连续触发
+                if (Keys['w']) Keys['w'] = false;
+                if (Keys[' ']) Keys[' '] = false;
+            }
+            
+            // 马里奥技能键：E
+            if (Keys['e'] && Players.mario.energy > 0 && Players.mario.skillCooldown <= 0) {
+                useSkill(Players.mario, 'electric');
+            }
+            
+            // 路易吉控制
+            if (Keys['arrowleft'] || (Players.luigi.touchControl.active && Players.luigi.velocityX < 0)) {
+                Players.luigi.velocityX = -Players.luigi.speed;
+            } else if (Keys['arrowright'] || (Players.luigi.touchControl.active && Players.luigi.velocityX > 0)) {
+                Players.luigi.velocityX = Players.luigi.speed;
+            } else if (!Players.luigi.touchControl.active) {
+                Players.luigi.velocityX = 0;
+            }
+            
+            // 路易吉跳跃键：上箭头或Shift
+            if ((Keys['arrowup'] || Keys['shift']) && (Players.luigi.onGround || Players.luigi.canDoubleJump)) {
+                jump(Players.luigi);
+                // 防止连续触发
+                if (Keys['arrowup']) Keys['arrowup'] = false;
+                if (Keys['shift']) Keys['shift'] = false;
+            }
+            
+            // 路易吉技能键：R
+            if (Keys['r'] && Players.luigi.energy > 0 && Players.luigi.skillCooldown <= 0) {
+                useSkill(Players.luigi, 'magnetic');
+            }
+            
+            // 边界检查
+            checkBoundaries(Players.mario);
+            checkBoundaries(Players.luigi);
+        }
+        
+        // 跳跃函数
+        function jump(player) {
+            // 首先检查是否站在另一个玩家头上
+            const otherPlayer = player === Players.mario ? Players.luigi : Players.mario;
+            
+            // 检查是否站在另一个玩家头上
+            if (player.y + player.height <= otherPlayer.y + 10 && 
+                player.y + player.height >= otherPlayer.y - 5 &&
+                player.x < otherPlayer.x + otherPlayer.width &&
+                player.x + player.width > otherPlayer.x) {
+                
+                // 从另一个玩家头上跳起
+                player.velocityY = -player.jumpForce;
+                player.jumping = true;
+                player.onGround = false;
+                player.canDoubleJump = true;
+                
+                // 给另一个玩家一个小的反作用力
+                otherPlayer.velocityY = -otherPlayer.jumpForce * 0.3;
+                
+                return;
+            }
+            
+            // 正常跳跃逻辑
+            if (player.onGround) {
+                player.velocityY = -player.jumpForce;
+                player.jumping = true;
+                player.onGround = false;
+                player.canDoubleJump = true;
+            } else if (player.canDoubleJump) {
+                player.velocityY = -player.jumpForce * 0.8;
+                player.canDoubleJump = false;
+            }
+        }
+        
+        // 使用技能
+        function useSkill(player, type) {
+            // 消耗能量
+            player.energy -= 30;
+            if (player.energy < 0) player.energy = 0;
+            
+            // 设置冷却时间
+            player.skillCooldown = 60;
+            
+            // 添加技能效果
+            effects.push({
+                type: type,
+                x: player.x + player.width / 2,
+                y: player.y + player.height / 2,
+                radius: 10,
+                maxRadius: 80,
+                speed: 2,
+                color: player.neonColor,
+                active: true
+            });
+            
+            // 更新UI
+            updateHUD();
+        }
+        
+        // 检查边界
+        function checkBoundaries(player) {
+            // 确保玩家不会移出Canvas
+            if (player.x < 0) player.x = 0;
+            if (player.x > gameCanvas.width - player.width) player.x = gameCanvas.width - player.width;
+            if (player.y < 0) player.y = 0;
+            if (player.y > gameCanvas.height - player.height) {
+                player.y = gameCanvas.height - player.height;
+                player.onGround = true;
+            }
+        }
+        
+        // 更新游戏状态
+        function update() {
+            // 更新玩家位置和物理
+            updatePlayer(Players.mario);
+            updatePlayer(Players.luigi);
+            
+            // 检查玩家之间的碰撞（用于互踩功能）
+            checkPlayerCollision();
+            
+            // 更新管道位置
+            updatePipes();
+            
+            // 更新粒子效果
+            updateParticles();
+            
+            // 更新技能效果
+            updateEffects();
+            
+            // 更新玩家轨迹效果
+            updatePlayerTrails();
+            
+            // 更新冷却时间
+            if (Players.mario.skillCooldown > 0) Players.mario.skillCooldown--;
+            if (Players.luigi.skillCooldown > 0) Players.luigi.skillCooldown--;
+        }
+        
+        // 更新玩家状态
+        function updatePlayer(player) {
+            // 应用重力
+            if (!player.onGround) {
+                player.velocityY += player.gravity;
+            }
+            
+            // 应用速度到位置
+            player.x += player.velocityX;
+            player.y += player.velocityY;
+            
+            // 添加轨迹效果
+            if (Math.abs(player.velocityX) > 0.5 || Math.abs(player.velocityY) > 0.5) {
+                player.trailEffect.push({
+                    x: player.x + player.width / 2,
+                    y: player.y + player.height / 2,
+                    life: 20,
+                    color: player.neonColor
+                });
+                
+                // 限制轨迹点数量
+                if (player.trailEffect.length > 10) {
+                    player.trailEffect.shift();
+                }
+            }
+            
+            // 重置状态（在碰撞检测中会重新设置）
+            player.onGround = false;
+            player.isOnOtherPlayer = false;
+            
+            // 能量恢复
+            if (player.energy < 100) {
+                player.energy += 0.2;
+                if (player.energy > 100) player.energy = 100;
+            }
+        }
+        
+        // 检查玩家之间的碰撞
+        function checkPlayerCollision() {
+            const mario = Players.mario;
+            const luigi = Players.luigi;
+            
+            // 检查马里奥是否在路易吉头上
+            if (mario.y + mario.height <= luigi.y + 10 && 
+                mario.y + mario.height >= luigi.y - 5 &&
+                mario.x < luigi.x + luigi.width &&
+                mario.x + mario.width > luigi.x &&
+                mario.velocityY > 0) {
+                
+                // 马里奥落在路易吉头上
+                mario.y = luigi.y - mario.height;
+                mario.velocityY = 0;
+                mario.onGround = true;
+                mario.canDoubleJump = true;
+                mario.jumping = false;
+                mario.isOnOtherPlayer = true;
+                
+                // 路易吉承受一点压力
+                luigi.velocityY = 2;
+            }
+            
+            // 检查路易吉是否在马里奥头上
+            if (luigi.y + luigi.height <= mario.y + 10 && 
+                luigi.y + luigi.height >= mario.y - 5 &&
+                luigi.x < mario.x + mario.width &&
+                luigi.x + luigi.width > mario.x &&
+                luigi.velocityY > 0) {
+                
+                // 路易吉落在马里奥头上
+                luigi.y = mario.y - luigi.height;
+                luigi.velocityY = 0;
+                luigi.onGround = true;
+                luigi.canDoubleJump = true;
+                luigi.jumping = false;
+                luigi.isOnOtherPlayer = true;
+                
+                // 马里奥承受一点压力
+                mario.velocityY = 2;
+            }
+        }
+        
+        // 更新玩家轨迹
+        function updatePlayerTrails() {
+            // 更新马里奥轨迹
+            for (let i = Players.mario.trailEffect.length - 1; i >= 0; i--) {
+                Players.mario.trailEffect[i].life--;
+                if (Players.mario.trailEffect[i].life <= 0) {
+                    Players.mario.trailEffect.splice(i, 1);
+                }
+            }
+            
+            // 更新路易吉轨迹
+            for (let i = Players.luigi.trailEffect.length - 1; i >= 0; i--) {
+                Players.luigi.trailEffect[i].life--;
+                if (Players.luigi.trailEffect[i].life <= 0) {
+                    Players.luigi.trailEffect.splice(i, 1);
+                }
+            }
+        }
+        
+        // 更新管道位置
+        function updatePipes() {
+            const config = GameState.difficultyConfig[GameState.difficulty];
+            const pipeSpeed = config.pipeSpeed;
+            
+            pipes.forEach(pipe => {
+                pipe.x += pipeSpeed * pipe.direction;
+                
+                // 如果管道移出屏幕，改变方向
+                if (pipe.x < 0 || pipe.x > gameCanvas.width - pipe.width) {
+                    pipe.direction *= -1;
+                }
+            });
+        }
+        
+        // 更新粒子效果
+        function updateParticles() {
+            // 简化粒子系统
+        }
+        
+        // 更新技能效果
+        function updateEffects() {
+            for (let i = effects.length - 1; i >= 0; i--) {
+                const effect = effects[i];
+                if (effect.active) {
+                    effect.radius += effect.speed;
+                    if (effect.radius >= effect.maxRadius) {
+                        effects.splice(i, 1);
+                    }
+                }
+            }
+        }
+        
+        // 检查碰撞
+        function checkCollisions() {
+            // 检查玩家与平台的碰撞
+            checkPlatformCollisions(Players.mario);
+            checkPlatformCollisions(Players.luigi);
+            
+            // 检查玩家与收集物的碰撞
+            checkCollectibleCollisions(Players.mario);
+            checkCollectibleCollisions(Players.luigi);
+            
+            // 检查玩家与障碍物的碰撞
+            checkObstacleCollisions(Players.mario);
+            checkObstacleCollisions(Players.luigi);
+            
+            // 检查玩家与目标的碰撞
+            checkGoalCollisions();
+        }
+        
+        // 检查平台碰撞
+        function checkPlatformCollisions(player) {
+            platforms.forEach(platform => {
+                // 简单的AABB碰撞检测
+                if (player.x < platform.x + platform.width &&
+                    player.x + player.width > platform.x &&
+                    player.y < platform.y + platform.height &&
+                    player.y + player.height > platform.y) {
+                    
+                    // 如果玩家从上方落在平台上
+                    if (player.velocityY > 0 && player.y + player.height - player.velocityY <= platform.y) {
+                        player.y = platform.y - player.height;
+                        player.velocityY = 0;
+                        player.onGround = true;
+                        player.canDoubleJump = true;
+                        player.jumping = false;
+                    }
+                    // 如果玩家撞到平台底部
+                    else if (player.velocityY < 0 && player.y - player.velocityY >= platform.y + platform.height) {
+                        player.y = platform.y + platform.height;
+                        player.velocityY = 0;
+                    }
+                    // 如果玩家从侧面撞到平台
+                    else if (player.velocityX > 0) {
+                        player.x = platform.x - player.width;
+                        player.velocityX = 0;
+                    }
+                    else if (player.velocityX < 0) {
+                        player.x = platform.x + platform.width;
+                        player.velocityX = 0;
+                    }
+                }
+            });
+        }
+        
+        // 检查收集物碰撞
+        function checkCollectibleCollisions(player) {
+            for (let i = collectibles.length - 1; i >= 0; i--) {
+                const collectible = collectibles[i];
+                if (!collectible.collected && 
+                    player.x < collectible.x + collectible.width &&
+                    player.x + player.width > collectible.x &&
+                    player.y < collectible.y + collectible.height &&
+                    player.y + player.height > collectible.y) {
+                    
+                    // 收集物品
+                    collectible.collected = true;
+                    GameState.collectiblesCollected++;
+                    updateHUD();
+                    
+                    // 添加收集效果
+                    addCollectEffect(collectible);
+                }
+            }
+        }
+        
+        // 添加收集效果
+        function addCollectEffect(collectible) {
+            for (let i = 0; i < 10; i++) {
+                particles.push({
+                    x: collectible.x + collectible.width / 2,
+                    y: collectible.y + collectible.height / 2,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: (Math.random() - 0.5) * 4,
+                    size: Math.random() * 3 + 1,
+                    color: collectible.color,
+                    life: 30
+                });
+            }
+        }
+        
+        // 检查障碍物碰撞
+        function checkObstacleCollisions(player) {
+            obstacles.forEach(obstacle => {
+                if (player.x < obstacle.x + obstacle.width &&
+                    player.x + player.width > obstacle.x &&
+                    player.y < obstacle.y + obstacle.height &&
+                    player.y + player.height > obstacle.y) {
+                    
+                    // 受到伤害
+                    player.health -= 20;
+                    if (player.health < 0) player.health = 0;
+                    
+                    // 更新UI
+                    updateHUD();
+                    
+                    // 击退效果
+                    const knockbackX = player.x < obstacle.x ? -5 : 5;
+                    player.velocityX = knockbackX;
+                    player.velocityY = -5;
+                    
+                    // 检查游戏结束
+                    if (player.health <= 0) {
+                        gameOver();
+                    }
+                }
+            });
+        }
+        
+        // 检查目标碰撞
+        function checkGoalCollisions() {
+            if (!goal) return;
+            
+            // 检查是否收集了足够的碎片（只需要5个）
+            if (GameState.collectiblesCollected < 5) {
+                return;
+            }
+            
+            // 检查两个玩家是否都到达目标
+            const marioAtGoal = Players.mario.x < goal.x + goal.width &&
+                               Players.mario.x + Players.mario.width > goal.x &&
+                               Players.mario.y < goal.y + goal.height &&
+                               Players.mario.y + Players.mario.height > goal.y;
+            
+            const luigiAtGoal = Players.luigi.x < goal.x + goal.width &&
+                               Players.luigi.x + Players.luigi.width > goal.x &&
+                               Players.luigi.y < goal.y + goal.height &&
+                               Players.luigi.y + Players.luigi.height > goal.y;
+            
+            if (marioAtGoal && luigiAtGoal) {
+                levelComplete();
+            }
+        }
+        
+        // 检查游戏条件
+        function checkGameConditions() {
+            // 检查玩家是否掉出屏幕
+            if (Players.mario.y > gameCanvas.height || Players.luigi.y > gameCanvas.height) {
+                gameOver();
+            }
+            
+            // 检查生命值
+            if (Players.mario.health <= 0 || Players.luigi.health <= 0) {
+                gameOver();
+            }
+        }
+        
+        // 绘制游戏
+        function draw() {
+            // 清除画布
+            ctx.fillStyle = '#0a0a1a';
+            ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+            
+            // 绘制网格背景
+            drawGrid();
+            
+            // 绘制平台
+            platforms.forEach(drawPlatform);
+            
+            // 绘制管道
+            pipes.forEach(drawPipe);
+            
+            // 绘制障碍物
+            obstacles.forEach(drawObstacle);
+            
+            // 绘制收集物
+            collectibles.forEach(drawCollectible);
+            
+            // 绘制目标
+            if (goal) drawGoal();
+            
+            // 绘制玩家轨迹
+            drawPlayerTrails(Players.mario);
+            drawPlayerTrails(Players.luigi);
+            
+            // 绘制玩家
+            drawCyberPlayer(Players.mario);
+            drawCyberPlayer(Players.luigi);
+            
+            // 绘制粒子效果
+            particles.forEach(drawParticle);
+            
+            // 绘制技能效果
+            effects.forEach(drawEffect);
+            
+            // 绘制UI信息
+            drawUI();
+        }
+        
+        // 绘制网格背景
+        function drawGrid() {
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.05)';
+            ctx.lineWidth = 1;
+            
+            // 水平线
+            for (let y = 0; y < gameCanvas.height; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(gameCanvas.width, y);
+                ctx.stroke();
+            }
+            
+            // 垂直线
+            for (let x = 0; x < gameCanvas.width; x += 50) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, gameCanvas.height);
+                ctx.stroke();
+            }
+        }
+        
+        // 绘制平台
+        function drawPlatform(platform) {
+            // 平台主体
+            ctx.fillStyle = platform.color;
+            ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+            
+            // 霓虹边框
+            ctx.strokeStyle = platform.neonColor;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(platform.x, platform.y, platform.width, platform.height);
+            
+            // 发光效果
+            ctx.shadowColor = platform.neonColor;
+            ctx.shadowBlur = 10;
+            ctx.strokeRect(platform.x, platform.y, platform.width, platform.height);
+            ctx.shadowBlur = 0;
+        }
+        
+        // 绘制管道
+        function drawPipe(pipe) {
+            // 管道主体
+            ctx.fillStyle = pipe.color;
+            ctx.fillRect(pipe.x, pipe.y, pipe.width, pipe.height);
+            
+            // 霓虹边框
+            ctx.strokeStyle = pipe.neonColor;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(pipe.x, pipe.y, pipe.width, pipe.height);
+            
+            // 发光效果
+            ctx.shadowColor = pipe.neonColor;
+            ctx.shadowBlur = 10;
+            ctx.strokeRect(pipe.x, pipe.y, pipe.width, pipe.height);
+            ctx.shadowBlur = 0;
+        }
+        
+        // 绘制障碍物
+        function drawObstacle(obstacle) {
+            // 障碍物主体
+            ctx.fillStyle = obstacle.color;
+            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            
+            // 危险标志
+            ctx.strokeStyle = obstacle.neonColor;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(obstacle.x + 5, obstacle.y + 5);
+            ctx.lineTo(obstacle.x + obstacle.width - 5, obstacle.y + obstacle.height - 5);
+            ctx.moveTo(obstacle.x + obstacle.width - 5, obstacle.y + 5);
+            ctx.lineTo(obstacle.x + 5, obstacle.y + obstacle.height - 5);
+            ctx.stroke();
+            
+            // 发光效果
+            ctx.shadowColor = obstacle.neonColor;
+            ctx.shadowBlur = 15;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+        
+        // 绘制收集物
+        function drawCollectible(collectible) {
+            if (collectible.collected) return;
+            
+            // 收集物主体（菱形）
+            ctx.fillStyle = collectible.color;
+            ctx.beginPath();
+            ctx.moveTo(collectible.x + collectible.width / 2, collectible.y);
+            ctx.lineTo(collectible.x + collectible.width, collectible.y + collectible.height / 2);
+            ctx.lineTo(collectible.x + collectible.width / 2, collectible.y + collectible.height);
+            ctx.lineTo(collectible.x, collectible.y + collectible.height / 2);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 发光效果
+            ctx.shadowColor = collectible.color;
+            ctx.shadowBlur = 15;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
+            // 旋转动画
+            const time = Date.now() / 1000;
+            const pulse = Math.sin(time * 5) * 0.1 + 0.9;
+            ctx.globalAlpha = pulse;
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.globalAlpha = 1.0;
+        }
+        
+        // 绘制目标
+        function drawGoal() {
+            // 目标主体
+            ctx.fillStyle = goal.color;
+            ctx.beginPath();
+            ctx.arc(goal.x + goal.width / 2, goal.y + goal.height / 2, goal.width / 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 发光效果
+            ctx.shadowColor = goal.color;
+            ctx.shadowBlur = 30;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
+            // 脉冲动画
+            const time = Date.now() / 1000;
+            const pulse = Math.sin(time * 3) * 5 + 10;
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(goal.x + goal.width / 2, goal.y + goal.height / 2, goal.width / 2 + pulse, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+        
+        // 绘制玩家轨迹
+        function drawPlayerTrails(player) {
+            for (let i = 0; i < player.trailEffect.length; i++) {
+                const trail = player.trailEffect[i];
+                const alpha = trail.life / 20;
+                
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = player.neonColor;
+                ctx.beginPath();
+                ctx.arc(trail.x, trail.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+            }
+        }
+        
+        // 绘制赛博朋克风格玩家
+        function drawCyberPlayer(player) {
+            const isMario = player === Players.mario;
+            const centerX = player.x + player.width / 2;
+            const centerY = player.y + player.height / 2;
+            
+            // 保存上下文状态
+            ctx.save();
+            
+            // 身体主体
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            
+            // 赛博装甲细节
+            ctx.strokeStyle = player.neonColor;
+            ctx.lineWidth = 2;
+            
+            // 身体装甲线
+            ctx.beginPath();
+            ctx.moveTo(player.x + 5, player.y + 10);
+            ctx.lineTo(player.x + player.width - 5, player.y + 10);
+            ctx.moveTo(player.x + 5, player.y + 25);
+            ctx.lineTo(player.x + player.width - 5, player.y + 25);
+            ctx.moveTo(player.x + 5, player.y + 40);
+            ctx.lineTo(player.x + player.width - 5, player.y + 40);
+            ctx.stroke();
+            
+            // 头盔/头部
+            ctx.fillStyle = isMario ? '#FF3A2F' : '#36B37E';
+            ctx.beginPath();
+            ctx.arc(centerX, player.y + 15, 15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 头盔护目镜
+            ctx.fillStyle = '#0a0a1a';
+            ctx.beginPath();
+            ctx.arc(centerX - 5, player.y + 15, 6, 0, Math.PI * 2);
+            ctx.arc(centerX + 5, player.y + 15, 6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 护目镜发光效果
+            ctx.shadowColor = player.neonColor;
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = player.neonColor;
+            ctx.globalAlpha = 0.7;
+            ctx.beginPath();
+            ctx.arc(centerX - 5, player.y + 15, 3, 0, Math.PI * 2);
+            ctx.arc(centerX + 5, player.y + 15, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+            ctx.shadowBlur = 0;
+            
+            // 能量核心（胸部）
+            ctx.fillStyle = player.neonColor;
+            ctx.beginPath();
+            ctx.arc(centerX, player.y + 35, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 能量核心脉冲效果
+            const time = Date.now() / 1000;
+            const pulse = Math.sin(time * 3) * 2 + 4;
+            ctx.shadowColor = player.neonColor;
+            ctx.shadowBlur = 15;
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            ctx.arc(centerX, player.y + 35, pulse, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+            ctx.shadowBlur = 0;
+            
+            // 手臂（赛博义肢）
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x - 8, player.y + 20, 8, 15);
+            ctx.fillRect(player.x + player.width, player.y + 20, 8, 15);
+            
+            // 腿部
+            ctx.fillRect(player.x + 5, player.y + player.height, 10, 15);
+            ctx.fillRect(player.x + player.width - 15, player.y + player.height, 10, 15);
+            
+            // 霓虹边框
+            ctx.strokeStyle = player.neonColor;
+            ctx.lineWidth = 3;
+            ctx.strokeRect(player.x, player.y, player.width, player.height);
+            
+            // 发光效果
+            ctx.shadowColor = player.neonColor;
+            ctx.shadowBlur = 15;
+            ctx.strokeRect(player.x, player.y, player.width, player.height);
+            ctx.shadowBlur = 0;
+            
+            // 恢复上下文状态
+            ctx.restore();
+            
+            // 如果站在另一个玩家头上，显示连接效果
+            if (player.isOnOtherPlayer) {
+                const otherPlayer = player === Players.mario ? Players.luigi : Players.mario;
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 3]);
+                ctx.beginPath();
+                ctx.moveTo(centerX, player.y + player.height);
+                ctx.lineTo(otherPlayer.x + otherPlayer.width / 2, otherPlayer.y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+        
+        // 绘制粒子
+        function drawParticle(particle) {
+            ctx.fillStyle = particle.color;
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        // 绘制技能效果
+        function drawEffect(effect) {
+            ctx.strokeStyle = effect.color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(effect.x, effect.y, effect.radius, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // 发光效果
+            ctx.shadowColor = effect.color;
+            ctx.shadowBlur = 20;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+        
+        // 绘制UI信息
+        function drawUI() {
+            // 当前关卡显示在左上角
+            ctx.font = 'bold 24px Arial';
+            ctx.fillStyle = '#00F0FF';
+            ctx.textAlign = 'left';
+            ctx.fillText(`关卡: ${GameState.currentLevel}`, 20, 40);
+            
+            // 收集物数量
+            ctx.fillText(`碎片: ${GameState.collectiblesCollected}/8 (需5个)`, 20, 70);
+            
+            // 玩家指示器
+            ctx.font = 'bold 16px Arial';
+            ctx.fillStyle = Players.mario.color;
+            ctx.fillText('赛博马里奥', Players.mario.x, Players.mario.y - 10);
+            ctx.fillStyle = Players.luigi.color;
+            ctx.fillText('赛博路易吉', Players.luigi.x, Players.luigi.y - 10);
+            
+            // 操作提示
+            if (GameState.currentLevel === 1 && GameState.gameTime < 10) {
+                ctx.font = 'bold 18px Arial';
+                ctx.fillStyle = '#FFFFFF';
+                ctx.textAlign = 'center';
+                ctx.fillText('收集5个碎片后两人同时到达目标点！', gameCanvas.width / 2, 100);
+                ctx.fillText('可以互相踩着对方跳跃！', gameCanvas.width / 2, 130);
+            }
+        }
+        
+        // 游戏结束
+        function gameOver() {
+            GameState.gameRunning = false;
+            clearInterval(GameState.gameTimer);
+            gameOverScreen.style.display = 'flex';
+        }
+        
+        // 关卡完成
+        function levelComplete() {
+            GameState.gameRunning = false;
+            clearInterval(GameState.gameTimer);
+            
+            // 解锁下一关
+            if (!GameState.unlockedLevels.includes(GameState.currentLevel + 1) && GameState.currentLevel < 5) {
+                GameState.unlockedLevels.push(GameState.currentLevel + 1);
+            }
+            
+            // 更新关卡完成消息
+            const minutes = Math.floor(GameState.gameTime / 60);
+            const seconds = GameState.gameTime % 60;
+            const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            levelCompleteMessage.textContent = `恭喜你们成功通过关卡！收集了${GameState.collectiblesCollected}个碎片，通关时间：${timeString}`;
+            
+            // 更新关卡按钮
+            generateLevelButtons();
+            
+            levelCompleteScreen.style.display = 'flex';
+        }
+        
+        // 暂停/继续游戏
+        function togglePause() {
+            GameState.isPaused = !GameState.isPaused;
+            if (GameState.isPaused) {
+                pauseScreen.style.display = 'flex';
+            } else {
+                pauseScreen.style.display = 'none';
+            }
+        }
+        
+        // 恢复游戏
+        function resumeGame() {
+            GameState.isPaused = false;
+            pauseScreen.style.display = 'none';
+        }
+        
+        // 重新开始游戏
+        function restartGame() {
+            // 隐藏所有叠加层
+            gameOverScreen.style.display = 'none';
+            levelCompleteScreen.style.display = 'none';
+            pauseScreen.style.display = 'none';
+            
+            // 重新开始游戏
+            startGame();
+        }
+        
+        // 进入下一关
+        function goToNextLevel() {
+            if (GameState.currentLevel < 5) {
+                GameState.currentLevel++;
+                levelCompleteScreen.style.display = 'none';
+                restartGame();
+            }
+        }
+        
+        // 返回菜单
+        function exitToMenu() {
+            // 停止游戏
+            GameState.gameRunning = false;
+            clearInterval(GameState.gameTimer);
+            
+            // 隐藏所有游戏界面
+            mainGame.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            levelCompleteScreen.style.display = 'none';
+            pauseScreen.style.display = 'none';
+            
+            // 显示启动界面
+            showStartScreen();
+        }
+        
+        // 全屏切换
+        function toggleFullscreen() {
+            const element = document.documentElement;
+            
+            if (!GameState.isFullscreen) {
+                if (element.requestFullscreen) {
+                    element.requestFullscreen();
+                } else if (element.mozRequestFullScreen) { // Firefox
+                    element.mozRequestFullScreen();
+                } else if (element.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                    element.webkitRequestFullscreen();
+                } else if (element.msRequestFullscreen) { // IE/Edge
+                    element.msRequestFullscreen();
+                }
+                GameState.isFullscreen = true;
+                fullscreenBtn.textContent = "退出全屏";
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) { // Firefox
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { // IE/Edge
+                    document.msExitFullscreen();
+                }
+                GameState.isFullscreen = false;
+                fullscreenBtn.textContent = "全屏";
+            }
+        }
+        
+        // 页面加载完成后初始化游戏
+        window.addEventListener('DOMContentLoaded', init);
+        
+        // 监听全屏变化
+        document.addEventListener('fullscreenchange', () => {
+            GameState.isFullscreen = !!document.fullscreenElement;
+            fullscreenBtn.textContent = GameState.isFullscreen ? "退出全屏" : "全屏";
+        });
+        
+        // 监听浏览器离开页面警告
+        window.addEventListener('beforeunload', (e) => {
+            if (GameState.gameRunning) {
+                e.preventDefault();
+                e.returnValue = '游戏正在进行中，确定要离开吗？';
+            }
+        });
+    </script>
+</body>
+</html>
